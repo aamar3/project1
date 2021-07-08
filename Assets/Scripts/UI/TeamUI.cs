@@ -9,7 +9,7 @@ public class TeamUI : MonoBehaviour
     private List<Text> primaries;
     private List<Text> secondaries;
     private List<Text> utilities;
-    List<Player> players;
+    private Dictionary<int, Player> players;
     private PlayerManager playerManager;
     private TeamManager teamManager;
     static TeamUI teamUI = null;
@@ -159,13 +159,13 @@ public class TeamUI : MonoBehaviour
         // if not - sync with primaries
 
         int textSet = 0;
-        foreach(Player player in players)
+        foreach(KeyValuePair<int,Player> player in players)
         {
-            if (player.isLocalPlayer)
+            if (player.Value.isLocalPlayer)
                 continue;
 
             // get primary from player
-            PlayerCombat pc = player.GetComponent<PlayerCombat>();
+            PlayerCombat pc = player.Value.GetComponent<PlayerCombat>();
 
             if (!pc)
             {

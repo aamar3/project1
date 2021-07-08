@@ -2,7 +2,7 @@ using UnityEngine;
 using Mirror;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-
+using System.Collections.Generic;
 
 public class GameManager : NetworkBehaviour
 {
@@ -133,9 +133,9 @@ public class GameManager : NetworkBehaviour
 
     public void StripItems()
     {
-        foreach(Player player in PlayerManager.GetPlayerManager().GetPlayers())
+        foreach(KeyValuePair<int,Player> player in PlayerManager.GetPlayerManager().GetPlayers())
         {
-            GameObject gun = player.GetGun();
+            GameObject gun = player.Value.GetGun();
 
             if (!gun)
             {
@@ -145,8 +145,8 @@ public class GameManager : NetworkBehaviour
             Destroy(gun.GetComponent<Weapon>());
             Destroy(gun);
 
-            player.GetComponent<PlayerCombat>().SetWeapon(null);
-            player.Restart();
+            player.Value.GetComponent<PlayerCombat>().SetWeapon(null);
+            player.Value.Restart();
         }
 
         uiManager.UpdateUI();
@@ -155,9 +155,9 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     public void ClientStripItems()
     {
-        foreach (Player player in PlayerManager.GetPlayerManager().GetPlayers())
+        foreach (KeyValuePair<int, Player> player in PlayerManager.GetPlayerManager().GetPlayers())
         {
-            GameObject gun = player.GetGun();
+            GameObject gun = player.Value.GetGun();
 
             if (!gun)
             {
@@ -166,12 +166,10 @@ public class GameManager : NetworkBehaviour
             }
            // Destroy(gun.GetComponent<Weapon>());
             Destroy(gun);
-            player.GetComponent<PlayerCombat>().SetWeapon(null);
-            player.Restart();
-            player.GetComponent<PlayerCombat>().Start();
-        }
-
-        
+            player.Value.GetComponent<PlayerCombat>().SetWeapon(null);
+            player.Value.Restart();
+            player.Value.GetComponent<PlayerCombat>().Start();
+        }        
         uiManager.UpdateUI();
     }
 

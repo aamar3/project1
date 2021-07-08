@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerManager : NetworkBehaviour
 {
     private static PlayerManager playerManager;
-    private List<Player> players = new List<Player>();
+    private Dictionary<int,Player> players = new Dictionary<int,Player>();
     private Player localPlayer;
     private Store store = null;
     public event EventHandler OnPlayerAdded;
@@ -27,11 +27,14 @@ public class PlayerManager : NetworkBehaviour
         return playerManager;
     }
 
+    // I think this will eventually break because there's no gaurantee players will be added in the same
+    // order on clients and server in all cases. probably should move to do on server and then dat synced
+    // to clients
     public void Add(Player player)
     {
         Debug.Log("Player added");
-        player.SetIndex(players.Count);
-        players.Add(player);
+        player.SetKey(players.Count);
+        players.Add(players.Count,player);
 
         if (player.isLocalPlayer)
         {
@@ -62,13 +65,20 @@ public class PlayerManager : NetworkBehaviour
 
     public void SpawnPlayers()
     {
-        foreach(Player player in players)
-            player.transform.position = new Vector3(25, 1, 25);
+        foreach(KeyValuePair<int,Player> player in players)
+            player.Value.transform.position = new Vector3(25, 1, 25); 
+        // foreach(Player player in players)
+        //   player.transform.position = new Vector3(25, 1, 25);
     }
 
-    public List<Player> GetPlayers()
+    public Dictionary<int,Player> GetPlayers()
     {
         return players;
+    }
+
+    public Player GetPlayer(int key)
+    {
+        return players[key];
     }
 
     public Player GetLocalPlayer()

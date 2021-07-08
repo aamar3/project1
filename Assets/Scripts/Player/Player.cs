@@ -10,7 +10,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private Gun gunPrefab = null;
     private GameObject gun = null;
     private StoreManager storeManager;
-    private int index;
+    private int key;
     private string playerName = "";
 
     private void Awake()
@@ -109,17 +109,17 @@ public class Player : NetworkBehaviour
             }
         }
 
-        storeManager.PurchaseItem(tab, pos, index);
+        storeManager.PurchaseItem(tab, pos, key);
     }
 
-    public void SetIndex(int val)
+    public void SetKey(int val)
     {
-        index = val;
+        key = val;
     }
 
-    public int GetIndex()
+    public int GetKey()
     {
-        return index;
+        return key;
     }
 
     [Command]

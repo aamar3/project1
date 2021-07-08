@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PurchaseableSniper : Purchaseable
 {
-    public override void Purchased(int playerIndex)
+    public override void Purchased(int playerKey)
     {
         PlayerManager pm = PlayerManager.GetPlayerManager();
 
@@ -14,8 +14,7 @@ public class PurchaseableSniper : Purchaseable
             return;
         }
 
-        List<Player> players = pm.GetPlayers();
-        Player player = players[playerIndex];
+        Player player = pm.GetPlayer(playerKey);
 
         if (!player)
         {

@@ -303,7 +303,7 @@ public class Store : NetworkBehaviour
         if (!selectedItem)
             return;
 
-        selectedItem.Purchased(localPlayer.GetIndex());
+        selectedItem.Purchased(localPlayer.GetKey());
     }
 
     private void SetPrimaryUI()

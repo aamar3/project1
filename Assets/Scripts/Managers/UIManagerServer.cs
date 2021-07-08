@@ -10,7 +10,7 @@ public class UIManagerServer : Mirror.NetworkBehaviour
     [SerializeField] private List<Text> playerPrimary;
     [SerializeField] private List<Text> playerSecondary;
     [SerializeField] private List<Text> playerUtility;
-    private List<Player> players;
+    private Dictionary<int, Player> players;
 
     // Start is called before the first frame update
     void Start()

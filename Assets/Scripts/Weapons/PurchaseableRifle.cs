@@ -4,7 +4,7 @@ using Mirror;
 
 public class PurchaseableRifle : Purchaseable
 {
-    public override void Purchased(int playerIndex)
+    public override void Purchased(int playerKey)
     {
         PlayerManager pm = PlayerManager.GetPlayerManager();
         
@@ -13,11 +13,10 @@ public class PurchaseableRifle : Purchaseable
             Debug.Log("PurchaseableRifle could not get reference to PlayerManager");
             return;
         }
-        
-        List<Player> players = pm.GetPlayers();
-        Player player = players[playerIndex];
 
-        if(!player)
+        Player player = pm.GetPlayer(playerKey);
+
+        if (!player)
         {
             Debug.Log("Could not get reference to player");
             return;
