@@ -98,7 +98,7 @@ public class CameraManager : MonoBehaviour
     private void AssignCamera()
     {
         PlayerManager pm = PlayerManager.GetPlayerManager();
-        Player player = pm.GetLocalPlayer();
+        Player player = pm.localPlayer;
 
         cam1.Follow = player.gameObject.transform;
         cam2.Follow = player.gameObject.transform;

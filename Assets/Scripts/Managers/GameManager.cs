@@ -50,7 +50,7 @@ public class GameManager : NetworkBehaviour
 
     public void PlayButtonHit()
     {
-        Player localPlayer = playerManager.GetLocalPlayer();
+        Player localPlayer = playerManager.localPlayer;
         localPlayer.PlayButtonHit();
     }
 

@@ -7,7 +7,7 @@ public class PlayerManager : NetworkBehaviour
 {
     private static PlayerManager playerManager;
     private Dictionary<int,Player> players = new Dictionary<int,Player>();
-    private Player localPlayer;
+    public Player localPlayer { get; private set; }
     private Store store = null;
     public event EventHandler OnPlayerAdded;
     public event EventHandler AllPlayersDead;
@@ -81,16 +81,10 @@ public class PlayerManager : NetworkBehaviour
         return players[key];
     }
 
-    public Player GetLocalPlayer()
-    {
-        return localPlayer;
-    }
-
-
     public void PlayerPurchasedPrimary(Purchaseable purchaseable, int playerIndex)
     {
         purchaseable.Purchased(playerIndex);
-        RPCPurchased(purchaseable.GetPurchaseableIndex(), playerIndex);
+        RPCPurchased(purchaseable.index, playerIndex);
     }
 
     [ClientRpc]

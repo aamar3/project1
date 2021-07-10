@@ -16,8 +16,8 @@ public class Store : NetworkBehaviour
     /* [SerializeField]*/ private Text secondary = null;
     /* [SerializeField]*/ private Text utility = null;
     private TeamManager teamManager = null;
-    private int selectedTab;
-    private Purchaseable selectedItem;
+    public int selectedTab;
+    public Purchaseable selectedItem { get; private set; }
     private PlayerManager playerManager;
     private static Store store;
     private Player localPlayer;
@@ -36,8 +36,8 @@ public class Store : NetworkBehaviour
       //  SetTabsAndPositions(secondaryItems);
       //  SetTabsAndPositions(utilityItems);
         playerManager = PlayerManager.GetPlayerManager();
-        if(playerManager != null)
-            localPlayer = playerManager.GetLocalPlayer();
+        if (playerManager != null)
+            localPlayer = playerManager.localPlayer;
 
         GameManager gm = GameManager.GetGameManager();
         SetPrimaryUI();
@@ -48,7 +48,7 @@ public class Store : NetworkBehaviour
         int count = 0;
         foreach(Purchaseable purchaseable in purchaseables)
         {
-            purchaseable.SetPurchaseableIndex(count);
+            purchaseable.index = count;
             count++;
         }
     }
@@ -270,34 +270,6 @@ public class Store : NetworkBehaviour
         SetDisplayPrice();
     }
 
-    public void PurchaseItem()
-    {
-        if(!localPlayer)
-        {
-            if(!playerManager)
-            {
-                Debug.Log("Store does not have reference to PlayManager");
-                return;
-            }
-
-            localPlayer = playerManager.GetLocalPlayer();
-
-            if(!localPlayer)
-            {
-                Debug.Log("Store does not have a reference to the player");
-                return;
-            }
-        }
-
-        if(selectedItem == null)
-        {
-            Debug.Log("Selected item null");
-            return;
-        }
-
-        localPlayer.StoreManagerPurchase(selectedItem.GetTab(),selectedItem.GetPosition());
-    }
-
     private void SetPrimaryWeapon()
     {
         if (!selectedItem)
@@ -364,8 +336,8 @@ public class Store : NetworkBehaviour
         int pos = 0;
         foreach (Purchaseable item in itemList)
         {
-            item.SetTab(0);
-            item.SetPosition(pos);
+            item.tab = 0;
+            item.position = pos;
             pos++;
         }
     }

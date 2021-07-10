@@ -53,7 +53,7 @@ public class StoreManager : MonoBehaviour
         Purchaseable item = null;
 
         foreach (Purchaseable itm in itemList)
-            if (itm.GetPosition() == pos)
+            if (itm.position == pos)
                 item = itm;
 
         return item;
@@ -128,8 +128,8 @@ public class StoreManager : MonoBehaviour
         int pos = 0;
         foreach (Purchaseable item in itemList)
         {
-            item.SetTab(0);
-            item.SetPosition(pos);
+            item.tab = 0;
+            item.position = pos;
             pos++;
         }
     }

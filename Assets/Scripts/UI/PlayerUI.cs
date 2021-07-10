@@ -77,7 +77,7 @@ public class PlayerUI : MonoBehaviour
             return;
         }
 
-        Player player = playerManager.GetLocalPlayer();
+        Player player = playerManager.localPlayer;
 
         if (!player)
         {
@@ -115,7 +115,7 @@ public class PlayerUI : MonoBehaviour
         PlayerManager pm = PlayerManager.GetPlayerManager();
         if (pm != null)
         {
-            Player player = pm.GetLocalPlayer();
+            Player player = pm.localPlayer;
             if (player != null)
             {
                 PlayerCombat pc = player.GetComponent<PlayerCombat>();

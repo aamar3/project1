@@ -96,9 +96,19 @@ public class Player : NetworkBehaviour
         return gun;
     }
 
-    [Command]
-    public void StoreManagerPurchase(int tab, int pos)
+    public void Purchase()
     {
+        Purchaseable item = Store.GetStore().selectedItem;
+        CmdPurchase(item.tab, item.position);
+    }
+
+    [Command]
+    public void CmdPurchase(int tab, int pos)
+    {
+        // cant currently purcahse items
+        if (SceneManager.GetActiveScene().name != "StoreScreen")
+            return;
+
         if (storeManager == null)
         {
             storeManager = StoreManager.GetStoreManager();

@@ -9,9 +9,9 @@ public class Purchaseable : NetworkBehaviour
     [SerializeField] private string description;
     [SerializeField] private string type;
     [SerializeField] private Sprite image;
-    [SerializeField] private int tab;
-    [SerializeField] private int position;
-    private int purchaseableIndex;
+    [SerializeField] public int tab { get; set; }
+    [SerializeField] public int position { get; set; }
+    public int index { get; set; }
 
     public int GetBasePrice()
     {
@@ -38,7 +38,7 @@ public class Purchaseable : NetworkBehaviour
         return image;
     }
 
-    public virtual void Purchased(int player)
+    public virtual void Purchased(int playerKey)
     {
         return;
     }
@@ -50,34 +50,8 @@ public class Purchaseable : NetworkBehaviour
         Debug.Log("Purchased on client");
     }
 
-    public void SetPosition(int pos)
+    public Player GetPlayer(int playerKey)
     {
-        position = pos;
+        return PlayerManager.GetPlayerManager().GetPlayer(playerKey);
     }
-
-    public int GetPosition()
-    {
-        return position;
-    }
-
-    public void SetTab(int val)
-    {
-        tab = val;
-    }
-
-    public int GetTab()
-    { 
-        return tab;
-    }
-
-    public void SetPurchaseableIndex(int val)
-    {
-        purchaseableIndex = val;
-    }
-
-    public int GetPurchaseableIndex()
-    {
-        return purchaseableIndex;
-    }
-
 }
