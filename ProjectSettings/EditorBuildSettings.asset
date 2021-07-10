@@ -17,10 +17,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Level1.unity
     guid: c079b8a612ba52b49a0e5c579123973a
-  - enabled: 1
-    path: Assets/Scenes/StoreScreen - Copy.unity
-    guid: e6e3718218592194d871a20910c28e7f
-  - enabled: 1
-    path: Assets/Scenes/Restart.unity
-    guid: d04fc75b7730543439beecc70c9ed6e3
   m_configObjects: {}
