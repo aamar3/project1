@@ -28,9 +28,13 @@ public class CameraManager : MonoBehaviour
     public event EventHandler OnCameraFlip;
 
     // Start is called before the first frame update
-
     void Awake()
     {
+        if(cm != null)
+        {
+            Debug.LogWarning("Multiple CameraManager detected in the scene. Only one CameraManager can exist at a time. The duplicate CameraManager will be destroyed.");
+            Destroy(gameObject);
+        }
         cm = this;
     }
 

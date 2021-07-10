@@ -23,6 +23,12 @@ public class GameManager : NetworkBehaviour
 
     private void Awake()
     {
+        if (gm != null)
+        {
+            Debug.LogWarning("Multiple GameManager detected in the scene. Only one GameManager can exist at a time. The duplicate GameManager will be destroyed.");
+            Destroy(gameObject);
+        }
+
         gm = this;
     }
 

@@ -45,6 +45,11 @@ public class StoreManager : MonoBehaviour
 
     private void Awake()
     {
+        if (storeManager != null)
+        {
+            Debug.LogWarning("Multiple StoreManagers detected in the scene. Only one StoreManager can exist at a time. The duplicate StoreManager will be destroyed.");
+            Destroy(gameObject);
+        }
         storeManager = this;
     }
 

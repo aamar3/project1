@@ -19,6 +19,11 @@ public class TeamManager : NetworkBehaviour
 
     private void Awake()
     {
+        if (tm != null)
+        {
+            Debug.LogWarning("Multiple TeamManagers detected in the scene. Only one TeamManager can exist at a time. The duplicate TeamManager will be destroyed.");
+            Destroy(gameObject);
+        }
         tm = this;
     }
 

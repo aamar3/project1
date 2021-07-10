@@ -19,6 +19,12 @@ public class PlayerManager : NetworkBehaviour
 
     public void Awake()
     {
+        if (playerManager != null)
+        {
+            Debug.LogWarning("Multiple PlayerManager detected in the scene. Only one PlayerManager can exist at a time. The duplicate PlayerManager will be destroyed.");
+            Destroy(gameObject);
+        }
+
         playerManager = this;
     }
 

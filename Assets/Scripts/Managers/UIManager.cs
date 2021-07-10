@@ -11,6 +11,11 @@ public class UIManager : NetworkBehaviour
 
     private void Awake()
     {
+        if (ui != null)
+        {
+            Debug.LogWarning("Multiple UIManager detected in the scene. Only one UIManager can exist at a time. The duplicate UIManager will be destroyed.");
+            Destroy(gameObject);
+        }
         ui = this;
     }
 
