@@ -1,3 +1,4 @@
+#if !DISABLESTEAMWORKS
 using Steamworks;
 using System;
 using System.IO;
@@ -47,14 +48,11 @@ namespace Mirror.FizzySteam
         File.WriteAllText(fileName, SteamAppID.ToString());
         Debug.Log($"New {fileName} written with SteamAppID {SteamAppID}");
       }
+    }
 
-      if(UseNextGenSteamNetworking)
-      {
-        SteamNetworkingUtils.InitRelayNetworkAccess();
-      }
-
+    private void OnEnable()
+    {
       Debug.Assert(Channels != null && Channels.Length > 0, "No channel configured for FizzySteamworks.");
-
       Invoke(nameof(FetchSteamID), 1f);
     }
 
@@ -136,7 +134,7 @@ namespace Mirror.FizzySteam
       ClientConnect(uri.Host);
     }
 
-    public override void ClientSend(int channelId, ArraySegment<byte> segment)
+    public override void ClientSend(ArraySegment<byte> segment, int channelId)
     {
       byte[] data = new byte[segment.Count];
       Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
@@ -201,7 +199,7 @@ namespace Mirror.FizzySteam
       return steamBuilder.Uri;
     }
 
-    public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+    public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
     {
       if (ServerActive())
       {
@@ -210,7 +208,13 @@ namespace Mirror.FizzySteam
         server.Send(connectionId, data, channelId);
       }
     }
-    public override bool ServerDisconnect(int connectionId) => ServerActive() && server.Disconnect(connectionId);
+    public override void ServerDisconnect(int connectionId)
+    {
+      if (ServerActive())
+      {
+        server.Disconnect(connectionId);
+      }
+    }
     public override string ServerGetClientAddress(int connectionId) => ServerActive() ? server.ServerGetClientAddress(connectionId) : string.Empty;
     public override void ServerStop()
     {
@@ -239,22 +243,29 @@ namespace Mirror.FizzySteam
 
     public override int GetMaxPacketSize(int channelId)
     {
-      if (channelId >= Channels.Length)
+      if (UseNextGenSteamNetworking)
       {
-        Debug.LogError("Channel Id exceeded configured channels! Please configure more channels.");
-        return 1200;
+        return Constants.k_cbMaxSteamNetworkingSocketsMessageSizeSend;
       }
-
-      switch (Channels[channelId])
+      else
       {
-        case EP2PSend.k_EP2PSendUnreliable:
-        case EP2PSend.k_EP2PSendUnreliableNoDelay:
+        if (channelId >= Channels.Length)
+        {
+          Debug.LogError("Channel Id exceeded configured channels! Please configure more channels.");
           return 1200;
-        case EP2PSend.k_EP2PSendReliable:
-        case EP2PSend.k_EP2PSendReliableWithBuffering:
-          return 1048576;
-        default:
-          throw new NotSupportedException();
+        }
+
+        switch (Channels[channelId])
+        {
+          case EP2PSend.k_EP2PSendUnreliable:
+          case EP2PSend.k_EP2PSendUnreliableNoDelay:
+            return 1200;
+          case EP2PSend.k_EP2PSendReliable:
+          case EP2PSend.k_EP2PSendReliableWithBuffering:
+            return 1048576;
+          default:
+            throw new NotSupportedException();
+        }
       }
     }
 
@@ -274,6 +285,11 @@ namespace Mirror.FizzySteam
     {
       if (SteamManager.Initialized)
       {
+        if (UseNextGenSteamNetworking)
+        {
+          SteamNetworkingUtils.InitRelayNetworkAccess();
+        }
+
         SteamUserID = SteamUser.GetSteamID().m_SteamID;
       }
     }
@@ -284,3 +300,4 @@ namespace Mirror.FizzySteam
     }
   }
 }
+#endif // !DISABLESTEAMWORKS

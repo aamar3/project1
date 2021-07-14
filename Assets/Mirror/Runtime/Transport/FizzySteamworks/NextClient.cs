@@ -1,3 +1,4 @@
+#if !DISABLESTEAMWORKS
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -120,27 +121,25 @@ namespace Mirror.FizzySteam
         OnConnected.Invoke();
         Debug.Log("Connection established.");
 
-        if(BufferedData.Count > 0)
+        if (BufferedData.Count > 0)
         {
           Debug.Log($"{BufferedData.Count} received before connection was established. Processing now.");
           {
-            foreach(Action a in BufferedData)
+            foreach (Action a in BufferedData)
             {
               a();
             }
           }
         }
       }
-      else if (param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer)
+      else if (param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer || param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
       {
-        Connected = false;
-        OnDisconnected.Invoke();
-        Debug.Log("Disconnected.");
-        SteamNetworkingSockets.CloseConnection(param.m_hConn, 0, "Disconnected", false);
+        Debug.Log($"Connection was closed by peer, {param.m_info.m_szEndDebug}");
+        Disconnect();
       }
       else
       {
-        Debug.Log($"Connection state changed: {param.m_info.m_eState.ToString()}");
+        Debug.Log($"Connection state changed: {param.m_info.m_eState.ToString()} - {param.m_info.m_szEndDebug}");
       }
     }
 
@@ -164,6 +163,14 @@ namespace Mirror.FizzySteam
         c_onConnectionChange.Dispose();
         c_onConnectionChange = null;
       }
+    }
+
+    private void InternalDisconnect()
+    {
+      Connected = false;
+      OnDisconnected.Invoke();
+      Debug.Log("Disconnected.");
+      SteamNetworkingSockets.CloseConnection(HostConnection, 0, "Disconnected", false);
     }
 
     public void ReceiveData()
@@ -192,7 +199,12 @@ namespace Mirror.FizzySteam
     {
       EResult res = SendSocket(HostConnection, data, channelId);
 
-      if (res != EResult.k_EResultOK)
+      if(res == EResult.k_EResultNoConnection || res == EResult.k_EResultInvalidParam)
+      {
+        Debug.Log($"Connection to server was lost.");
+        InternalDisconnect();
+      }
+      else if (res != EResult.k_EResultOK)
       {
         Debug.LogError($"Could not send: {res.ToString()}");
       }
@@ -206,3 +218,4 @@ namespace Mirror.FizzySteam
     }
   }
 }
+#endif // !DISABLESTEAMWORKS

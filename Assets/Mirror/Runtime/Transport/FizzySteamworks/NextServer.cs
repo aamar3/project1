@@ -1,5 +1,7 @@
+#if !DISABLESTEAMWORKS
 using Steamworks;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -68,13 +70,13 @@ namespace Mirror.FizzySteam
         }
 
         EResult res;
-        
-        if((res = SteamNetworkingSockets.AcceptConnection(param.m_hConn)) == EResult.k_EResultOK)
+
+        if ((res = SteamNetworkingSockets.AcceptConnection(param.m_hConn)) == EResult.k_EResultOK)
         {
-          Debug.Log($"Accepting connection {clientSteamID}");         
+          Debug.Log($"Accepting connection {clientSteamID}");
         }
         else
-        {          
+        {
           Debug.Log($"Connection {clientSteamID} could not be accepted: {res.ToString()}");
         }
       }
@@ -86,15 +88,11 @@ namespace Mirror.FizzySteam
         OnConnected.Invoke(connectionId);
         Debug.Log($"Client with SteamID {clientSteamID} connected. Assigning connection id {connectionId}");
       }
-      else if(param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer)
+      else if (param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer || param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
       {
         if (connToMirrorID.TryGetValue(param.m_hConn, out int connId))
         {
-          OnDisconnected.Invoke(connId);
-          SteamNetworkingSockets.CloseConnection(param.m_hConn, 0, "Graceful disconnect", false);
-          connToMirrorID.Remove(connId);
-          steamIDToMirrorID.Remove(connId);
-          Debug.Log($"Client with SteamID {clientSteamID} disconnected.");
+          InternalDisconnect(connId, param.m_hConn);
         }
       }
       else
@@ -103,7 +101,16 @@ namespace Mirror.FizzySteam
       }
     }
 
-    public bool Disconnect(int connectionId)
+    private void InternalDisconnect(int connId, HSteamNetConnection socket)
+    {
+      OnDisconnected.Invoke(connId);
+      SteamNetworkingSockets.CloseConnection(socket, 0, "Graceful disconnect", false);
+      connToMirrorID.Remove(connId);
+      steamIDToMirrorID.Remove(connId);
+      Debug.Log($"Client with ConnectionID {connId} disconnected.");
+    }
+
+    public void Disconnect(int connectionId)
     {
       if (connToMirrorID.TryGetValue(connectionId, out HSteamNetConnection conn))
       {
@@ -111,12 +118,11 @@ namespace Mirror.FizzySteam
         SteamNetworkingSockets.CloseConnection(conn, 0, "Disconnected by server", false);
         steamIDToMirrorID.Remove(connectionId);
         connToMirrorID.Remove(connectionId);
-        return true;
+        OnDisconnected(connectionId);
       }
       else
       {
         Debug.LogWarning("Trying to disconnect unknown connection id: " + connectionId);
-        return false;
       }
     }
 
@@ -130,21 +136,22 @@ namespace Mirror.FizzySteam
 
     public void ReceiveData()
     {
-      foreach(HSteamNetConnection conn in connToMirrorID.FirstTypes)
+      foreach (HSteamNetConnection conn in connToMirrorID.FirstTypes.ToList())
       {
-        int connId = connToMirrorID[conn];
-
-        IntPtr[] ptrs = new IntPtr[MAX_MESSAGES];
-        int messageCount;
-
-        if ((messageCount=SteamNetworkingSockets.ReceiveMessagesOnConnection(conn, ptrs, MAX_MESSAGES)) > 0)
+        if (connToMirrorID.TryGetValue(conn, out int connId))
         {
-          for(int i = 0; i < messageCount; i++)
+          IntPtr[] ptrs = new IntPtr[MAX_MESSAGES];
+          int messageCount;
+
+          if ((messageCount = SteamNetworkingSockets.ReceiveMessagesOnConnection(conn, ptrs, MAX_MESSAGES)) > 0)
           {
-            (byte[] data, int ch) = ProcessMessage(ptrs[i]);
-            OnReceivedData(connId, data, ch);
+            for (int i = 0; i < messageCount; i++)
+            {
+              (byte[] data, int ch) = ProcessMessage(ptrs[i]);
+              OnReceivedData(connId, data, ch);
+            }
           }
-        }        
+        }
       }
     }
 
@@ -154,7 +161,12 @@ namespace Mirror.FizzySteam
       {
         EResult res = SendSocket(conn, data, channelId);
 
-        if(res != EResult.k_EResultOK)
+        if (res == EResult.k_EResultNoConnection || res == EResult.k_EResultInvalidParam)
+        {
+          Debug.Log($"Connection to {connectionId} was lost.");
+          InternalDisconnect(connectionId, conn);
+        }
+        else if (res != EResult.k_EResultOK)
         {
           Debug.LogError($"Could not send: {res.ToString()}");
         }
@@ -192,3 +204,4 @@ namespace Mirror.FizzySteam
     }
   }
 }
+#endif // !DISABLESTEAMWORKS

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/SteamConnectScreen.unity
+    guid: defa419a162f2e54f8b563cafe32b05c
+  - enabled: 1
     path: Assets/Scenes/ConnectScreen.unity
     guid: f827da851ba6002498d2eb3a0b148ea1
   - enabled: 1
